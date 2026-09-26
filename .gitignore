@@ -1,0 +1,7 @@
+# never commit local test credentials
+.secrets/
+*.env
+!*example*
+# python test caches
+__pycache__/
+.pytest_cache/

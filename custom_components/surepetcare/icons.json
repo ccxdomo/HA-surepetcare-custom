@@ -1,0 +1,13 @@
+{
+  "services": {
+    "set_indoor_only": {
+      "service": "mdi:home-lock"
+    },
+    "set_lock_state": {
+      "service": "mdi:lock"
+    },
+    "set_pet_location": {
+      "service": "mdi:dog"
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_account%]"
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "step": {
+      "reauth_confirm": {
+        "data": {
+          "password": "[%key:common::config_flow::data::password%]"
+        },
+        "description": "Re-authenticate by entering password for {username}",
+        "title": "[%key:common::config_flow::title::reauth%]"
+      },
+      "user": {
+        "data": {
+          "password": "[%key:common::config_flow::data::password%]",
+          "username": "[%key:common::config_flow::data::username%]"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "api_auth_failed": {
+      "message": "Authentication with the Sure Petcare cloud failed. Re-authenticate the integration (Settings → Devices & Services → Sure Petcare → three-dot menu → Reauthenticate), then retry."
+    },
+    "api_connection_failed": {
+      "message": "Could not reach the Sure Petcare cloud. Check your network connection and retry once it is restored."
+    },
+    "confirm_required": {
+      "message": "The confirm field must be true to change indoor-only access. Call surepetcare.set_indoor_only again with confirm: true."
+    },
+    "device_offline": {
+      "message": "Flap {device_name} ({device_id}) is offline — cannot verify a change; refusing to write. Check the flap's power and hub connectivity, then retry."
+    },
+    "invalid_entity": {
+      "message": "{entity_id} is not a Sure Petcare indoor-only switch. Target a switch.<pet>_indoor_only entity of this integration."
+    },
+    "invalid_flap_id": {
+      "message": "Unknown Sure Petcare flap ID: {flap_id}"
+    },
+    "invalid_pet_name": {
+      "message": "Unknown Sure Petcare pet: {pet_name}"
+    },
+    "no_flap_assignment": {
+      "message": "Pet {pet_name} has no chip assignment on any flap, so indoor-only cannot be set."
+    },
+    "switch_write_protected": {
+      "message": "The indoor-only switch is write-protected by design and cannot be toggled directly. Use the surepetcare.set_indoor_only service with confirm: true instead."
+    },
+    "verification_failed": {
+      "message": "The indoor-only change could not be verified against the Sure Petcare cloud after the retry budget, so no state was updated. The switch re-syncs from the next cloud read; retry the service call if needed."
+    }
+  },
+  "services": {
+    "set_indoor_only": {
+      "description": "Sets the indoor-only access profile of one or more pets on their flaps. The cloud state is read back and verified before the switch updates.",
+      "fields": {
+        "confirm": {
+          "description": "Must be true — protects against accidental flips.",
+          "name": "Confirm"
+        },
+        "indoor_only": {
+          "description": "true keeps the pet(s) inside (indoor only); false restores normal access.",
+          "name": "Indoor only"
+        }
+      },
+      "name": "Set indoor only"
+    },
+    "set_lock_state": {
+      "description": "Sets lock state.",
+      "fields": {
+        "flap_id": {
+          "description": "Flap ID to lock/unlock.",
+          "name": "Flap ID"
+        },
+        "lock_state": {
+          "description": "New lock state.",
+          "name": "Lock state"
+        }
+      },
+      "name": "Set lock state"
+    },
+    "set_pet_location": {
+      "description": "Sets pet location.",
+      "fields": {
+        "location": {
+          "description": "Pet location (Inside or Outside).",
+          "name": "[%key:common::config_flow::data::location%]"
+        },
+        "pet_name": {
+          "description": "Name of pet.",
+          "name": "Pet name"
+        }
+      },
+      "name": "Set pet location"
+    }
+  }
+}

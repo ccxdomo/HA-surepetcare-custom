@@ -1,0 +1,58 @@
+set_lock_state:
+  fields:
+    flap_id:
+      required: true
+      example: "123456"
+      selector:
+        text:
+    lock_state:
+      required: true
+      selector:
+        select:
+          options:
+            - "locked_all"
+            - "locked_in"
+            - "locked_out"
+            - "unlocked"
+
+set_pet_location:
+  fields:
+    pet_name:
+      example: My_cat
+      required: true
+      selector:
+        text:
+    location:
+      example: Inside
+      required: true
+      selector:
+        select:
+          options:
+            - "Inside"
+            - "Outside"
+
+set_indoor_only:
+  name: Set indoor only
+  description: >-
+    Sets the indoor-only access profile of one or more pets on their flaps.
+    The cloud state is read back and verified before the switch updates.
+  target:
+    entity:
+      integration: surepetcare
+      domain: switch
+  fields:
+    indoor_only:
+      required: true
+      name: Indoor only
+      description: "true keeps the pet(s) inside (indoor only); false restores normal access."
+      selector:
+        boolean: {}
+    confirm:
+      required: true
+      name: Confirm
+      description: "Must be true — protects against accidental flips."
+      selector:
+        boolean: {}
+  confirmation:
+    text: >-
+      This changes the pet's flap access on the Sure Petcare cloud. Continue?
