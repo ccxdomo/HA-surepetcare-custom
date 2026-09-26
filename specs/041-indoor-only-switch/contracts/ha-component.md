@@ -340,8 +340,8 @@ in CI — CI has no secrets):
 
 | # | Test |
 |---|---|
-| L1 | Live read: login from env; `get_devices`; assert fixture flap 1307328 exists, tag 2119787 present with profile in {2, 3}; print profile+version. |
-| L2 | **Controlled write round-trip** (requires `SUREPETCARE_LIVE_WRITE=1` AND tag == `SUREPETCARE_TAG_ID_PINCEAU` == 2119787, else abort before any write): capture profile P₀/version V₀ → PUT opposite profile → verify (profile flipped, version V₀+1) → PUT back to **3** → verify → final assert profile == 3. **MUST end at verified profile 3** (spec R8). |
+| L1 | Live read: login from env; `get_devices`; assert fixture flap 200001 exists, tag 300003 present with profile in {2, 3}; print profile+version. |
+| L2 | **Controlled write round-trip** (requires `SUREPETCARE_LIVE_WRITE=1` AND tag == `SUREPETCARE_TAG_ID_PINCEAU` == 300003, else abort before any write): capture profile P₀/version V₀ → PUT opposite profile → verify (profile flipped, version V₀+1) → PUT back to **3** → verify → final assert profile == 3. **MUST end at verified profile 3** (spec R8). |
 | L3 | Post-round-trip: re-read `/device` and print final tag assignment (proof artifact for the Reviewer). |
 
 ## 11. Credential handling (NORMATIVE, requirement R8)
@@ -352,7 +352,7 @@ in CI — CI has no secrets):
   versions — never secrets.
 - CI (GitHub Actions) must not have access to these secrets; live tests detect CI
   absence and skip.
-- Write probes outside tag 2119787 are forbidden; the Architect ran **zero** write probes,
+- Write probes outside tag 300003 are forbidden; the Architect ran **zero** write probes,
   and the Coder's only write is the L2 round-trip (plus any write performed by the
   component under live manual QA by the owner).
 

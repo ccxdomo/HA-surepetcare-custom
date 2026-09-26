@@ -99,18 +99,18 @@ manifest/get: domain=surepetcare version=0.1.0
 (captured after the final write; states match the cloud exactly):
 
 ```
-switch.moca_indoor_only:    state=off pet_id=584007 tag_id=1492589 [device=1307328 profile=2 version=3]  all_flaps_indoor_only=False
-switch.pinceau_indoor_only: state=on  pet_id=701753 tag_id=2119787 [device=1307328 profile=3 version=16] all_flaps_indoor_only=True
-switch.tibounet_indoor_only:state=off pet_id=584008 tag_id=1492590 [device=1307328 profile=2 version=9]  all_flaps_indoor_only=False
+switch.moca_indoor_only:    state=off pet_id=400001 tag_id=300001 [device=200001 profile=2 version=3]  all_flaps_indoor_only=False
+switch.pinceau_indoor_only: state=on  pet_id=400003 tag_id=300003 [device=200001 profile=3 version=16] all_flaps_indoor_only=True
+switch.tibounet_indoor_only:state=off pet_id=400002 tag_id=300002 [device=200001 profile=2 version=9]  all_flaps_indoor_only=False
 ```
 
 **Unique_id stability** (entity registry; core entities not duplicated —
 identical unique_id convention as core, new switches collision-free):
 
 ```
-switch.pinceau_indoor_only  -> 267941-701753-indoor_only
-switch.moca_indoor_only     -> 267941-584007-indoor_only
-switch.tibounet_indoor_only -> 267941-584008-indoor_only
+switch.pinceau_indoor_only  -> 100241-400003-indoor_only
+switch.moca_indoor_only     -> 100241-400001-indoor_only
+switch.tibounet_indoor_only -> 100241-400002-indoor_only
 ```
 
 Full surepetcare entity registry (21 entities, all core platforms intact):
@@ -154,9 +154,9 @@ The confirm field must be true to change indoor-only access. Call
   surepetcare.set_indoor_only again with confirm: true
 ```
 
-## 4. The write round-trip (tag 2119787 — Pinceau — ends at verified profile 3)
+## 4. The write round-trip (tag 300003 — Pinceau — ends at verified profile 3)
 
-Write ledger (every state-changing write on tag 2119787; no other tag ever written):
+Write ledger (every state-changing write on tag 300003; no other tag ever written):
 
 | # | Time (CEST) | Write | Result | Cloud state after |
 |---|---|---|---|---|
@@ -166,14 +166,14 @@ Write ledger (every state-changing write on tag 2119787; no other tag ever writt
 | 4 | 10:09:16 | return leg 2→3 (service call) | **verified, HTTP 200, full audit** | profile 3, version 16 (updated_at 10:09:24) |
 
 **Pre-state** (captured 09:57-10:06, multiple independent sources):
-HA switch `state=on [device=1307328 profile=3 version=14]`; cloud read:
+HA switch `state=on [device=200001 profile=3 version=14]`; cloud read:
 `profile=3 version=14 updated_at=2026-09-26T07:59:33Z` (N = 14).
 
 **After-write-2** (outbound leg, profile 2 = normal access):
 - Independent cloud reads after the write: `profile=2 version=15
   updated_at=2026-09-26T08:07:08Z` (L1 script).
 - HA state after restart (coordinator poll — cloud truth): `switch.pinceau_indoor_only:
-  state=off [device=1307328 profile=2 version=15]`.
+  state=off [device=200001 profile=2 version=15]`.
 - The component **verified** this write before the crash (execution reached step 6 —
   past `set_tag_profile` and `_patch_cached_tag`): the TypeError traceback in the log
   (see §6) proves the verified path ran. Profile moved 3→2, version 14→15 (N+1).
@@ -182,11 +182,11 @@ HA switch `state=on [device=1307328 profile=3 version=14]`; cloud read:
 
 ```
 service call (indoor_only=True -> profile 3): HTTP 200 body=[]
-HA after-write-3: state=on pet=Pinceau [device=1307328 profile=3 version=16]
+HA after-write-3: state=on pet=Pinceau [device=200001 profile=3 version=16]
   last_write={"at": "2026-09-26T10:09:16.974314+02:00", "requested": true,
-              "user_id": "4a0c77ff06fe4c4aa3501a025458f845",
-              "verified": [{"device_id": 1307328, "profile": 3,
-                            "tag_id": 2119787, "version": 16}]}
+              "user_id": "0123456789abcdef0123456789abcdef",
+              "verified": [{"device_id": 200001, "profile": 3,
+                            "tag_id": 300003, "version": 16}]}
 cloud after-write-3: profile=3 version=16
 ```
 
@@ -194,9 +194,9 @@ cloud after-write-3: profile=3 version=16
 
 ```
 2026-09-26 10:09:27.940 INFO (MainThread) [custom_components.surepetcare.coordinator]
-indoor-only write verified | user=QA041 | user_id=4a0c77ff06fe4c4aa3501a025458f845 |
+indoor-only write verified | user=QA041 | user_id=0123456789abcdef0123456789abcdef |
 at=2026-09-26T10:09:16.974314+02:00 | entity_id(s)=switch.pinceau_indoor_only |
-pet=Pinceau tag_id=2119787 device=la chatière (1307328) | profile 2->3 | version 15->16
+pet=Pinceau tag_id=300003 device=la chatière (200001) | profile 2->3 | version 15->16
 ```
 
 **Failure-path evidence** (attempt 1, run 1 log; the component refused to report
@@ -205,11 +205,11 @@ rotation kept only one backup, this line is preserved from the captured run):
 
 ```
 2026-09-26 09:59:28.212 ERROR (MainThread) [custom_components.surepetcare.coordinator]
-indoor-only write FAILED | user=QA041 | user_id=4a0c77ff06fe4c4aa3501a025458f845 |
+indoor-only write FAILED | user=QA041 | user_id=0123456789abcdef0123456789abcdef |
 at=2026-09-26T09:59:21.560070+02:00 | entity_id(s)=switch.pinceau_indoor_only |
-pet=Pinceau tag_id=2119787 device=la chatière (1307328) |
-reason=verification failed: Could not verify the indoor-only change for tag 2119787 on
-device 1307328 after 3 attempts: expected profile 3 with version greater than 13;
+pet=Pinceau tag_id=300003 device=la chatière (200001) |
+reason=verification failed: Could not verify the indoor-only change for tag 300003 on
+device 200001 after 3 attempts: expected profile 3 with version greater than 13;
 last observed profile=2 version=13
 ```
 
@@ -218,10 +218,10 @@ The switch kept showing the last cloud-verified state and resynced on the next p
 ## 5. Live scripts (tests/live/, run on the local host only)
 
 ```
-L1 OK | device=1307328 name='la chatière' online=True tag=2119787
+L1 OK | device=200001 name='la chatière' online=True tag=300003
        profile=3 version=16 updated_at=2026-09-26T08:09:24+00:00
 
-L3 final | device=1307328 name='la chatière' online=True tag=2119787
+L3 final | device=200001 name='la chatière' online=True tag=300003
           profile=3 version=16 updated_at=2026-09-26T08:09:24+00:00
 L3 OK | resting state verified at profile 3
 
@@ -232,7 +232,7 @@ L2 ABORT: SUREPETCARE_LIVE_WRITE != 1 — refusing to run (no changes made)   (e
 L1 asserts the flap exists, the tag is present with profile in {2, 3} and prints
 profile+version; L3 re-reads `/device` after the round-trip and asserts profile 3
 (Reviewer proof artifact); L2 aborts before any network call unless
-`SUREPETCARE_LIVE_WRITE=1` **and** the configured tag is 2119787 (spec R8).
+`SUREPETCARE_LIVE_WRITE=1` **and** the configured tag is 300003 (spec R8).
 The L2 write path itself (api.set_tag_profile) was exercised live through the
 protected service (§4) rather than by running L2 — see deviation D3.
 

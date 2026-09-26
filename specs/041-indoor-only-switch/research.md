@@ -24,16 +24,16 @@
 | **401s are caused by missing/invalid `Authorization`**, not by `X-Device-Id` mismatch | **DISPROVEN** (interview claim) | probe2: valid token + *wrong* `X-Device-Id` → **200**; valid token + *missing* `X-Device-Id` → **200**; garbage/missing Bearer → **401**. |
 | Sessions are **additive** (no fencing) | PROVEN | probe2: re-login with same device-id keeps old token valid (200); separate device-id logins do not invalidate each other. `tokenA != tokenB != tokenC` (each login mints a fresh token). |
 | `GET /api/me/start` returns `{"data": {"devices", "pets", "households", "photos", "segments", "tags", "user"}}` — this is **surepy's poll endpoint** | PROVEN | probe1. |
-| `/me/start` pets carry top-level **`tag_id`** (int) + `tag` object | PROVEN | probe1: Pinceau 701753 → `tag_id=2119787`; Moca 584007 → 1492589; Tibounet 584008 → 1492590. |
-| `/me/start` **devices carry `tags[]`** with `id, device_id, index, profile, version, created_at, updated_at` | PROVEN | probe1 + inspect: flap 1307328 tags = [{1492589, v3}, {1492590, v9}, {2119787, v13}], all profile 2; hub 1073725 has `tags: []`; Felaqua 906099 carries the same three tag ids at version 1. |
-| `/device` returns the same device payloads with tags (`with[]=tags` belt-and-braces; **bare `/device` also includes tags**) | PROVEN | probe1: bare `/device` and `?with[]=children&with[]=tags&with[]=control&with[]=status` → identical tags arrays (byte-equal fields compared for flap 1307328). |
+| `/me/start` pets carry top-level **`tag_id`** (int) + `tag` object | PROVEN | probe1: Pinceau 400003 → `tag_id=300003`; Moca 400001 → 300001; Tibounet 400002 → 300002. |
+| `/me/start` **devices carry `tags[]`** with `id, device_id, index, profile, version, created_at, updated_at` | PROVEN | probe1 + inspect: flap 200001 tags = [{300001, v3}, {300002, v9}, {300003, v13}], all profile 2; hub 200002 has `tags: []`; Felaqua 200003 carries the same three tag ids at version 1. |
+| `/device` returns the same device payloads with tags (`with[]=tags` belt-and-braces; **bare `/device` also includes tags**) | PROVEN | probe1: bare `/device` and `?with[]=children&with[]=tags&with[]=control&with[]=status` → identical tags arrays (byte-equal fields compared for flap 200001). |
 | `/me/start` top-level `tags[]` = **tag objects** (`id, tag <serial>, supported_product_ids, incompatible_product_ids, version, created_at`), NOT device assignments | PROVEN | probe3. `supported_product_ids: [3, 4, 6, 8, 10, 32]`. |
 | `GET /api/tag` and `GET /api/tag/{id}` exist; no `profile`/`device_id` there | PROVEN | probe1: 200, tag objects only. The (device,tag) `profile` exists **only** under `/device` and `/me/start` devices. |
-| Pet payload cross-links: `status.activity.tag_id`, `position.tag_id`, `status.drinking.tag_id` all agree with the pet's `tag_id` | PROVEN | probe1/inspect: Pinceau activity = {tag_id: 2119787, device_id: 1307328, where: 2, since: 2026-09-26T06:08:31Z}. |
+| Pet payload cross-links: `status.activity.tag_id`, `position.tag_id`, `status.drinking.tag_id` all agree with the pet's `tag_id` | PROVEN | probe1/inspect: Pinceau activity = {tag_id: 300003, device_id: 200001, where: 2, since: 2026-09-26T06:08:31Z}. |
 | Flap device payload contains `status` (online, battery, locking.mode, signal), `control` (curfew 18:00–06:00 enabled), `version`, `serial_number`, `parent_device_id` | PROVEN | inspect of saved payloads. |
 | profile semantics: **2 = normal access, 3 = indoor only** | GIVEN | Established by the interview's three-dump differential + controlled round-trip. Not re-provable read-only (writes are forbidden for the Architect); the Coder's live test re-confirms. |
 | Write: `PUT /api/device/{device_id}/tag/{tag_id}` with `{"profile": 2|3}`; accepted change increments the tag `version` | GIVEN | Interview round-trip; `version` increment is the persistence proof. |
-| **Pinceau's tag currently rests at profile 2, not 3** | **DISPROVEN** (interview expectation) | probe1: tag 2119787 on flap 1307328 = profile **2**, version **13**, `updated_at` 2026-09-26T07:09:15Z (this morning, after the interview's round-trip); Pinceau exited via the flap at 06:08Z (`position.where=2`). The Coder's live test therefore starts from profile 2 and MUST end at profile 3 (its final write). |
+| **Pinceau's tag currently rests at profile 2, not 3** | **DISPROVEN** (interview expectation) | probe1: tag 300003 on flap 200001 = profile **2**, version **13**, `updated_at` 2026-09-26T07:09:15Z (this morning, after the interview's round-trip); Pinceau exited via the flap at 06:08Z (`position.where=2`). The Coder's live test therefore starts from profile 2 and MUST end at profile 3 (its final write). |
 | App behavior: indoor-only writes go to **flaps only**, never to Felaqua/feeder | PROVEN (inference from version counters) | Felaqua tags: all `version: 1` (never written) while the same tags on the flap show versions 3/9/13 — the app never touched them despite frequent profile toggling. |
 
 ## 2. Working header set (evidence-backed)
@@ -73,9 +73,9 @@ tag entry carries `device_id`, `profile`, `version`. So the per-pet mapping rule
 > (product_id 3 = pet door connect, 6 = cat flap connect) whose `tags[]` contains
 > `{id: T}`.
 
-Fixtures (household 267941): Moca 584007 → tag 1492589; Tibounet 584008 → tag 1492590;
-Pinceau 701753 → tag 2119787 — all three tags sit on flap "la chatière" (1307328) *and*
-Felaqua 906099 (ignored for indoor-only, see §6).
+Fixtures (household 100241): Moca 400001 → tag 300001; Tibounet 400002 → tag 300002;
+Pinceau 400003 → tag 300003 — all three tags sit on flap "la chatière" (200001) *and*
+Felaqua 200003 (ignored for indoor-only, see §6).
 
 No fallback is needed; the API carries the association natively. (The interview's
 "unknown pet→tag mapping" was a gap in the morning probes, which only looked at

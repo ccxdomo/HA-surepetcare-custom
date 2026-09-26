@@ -2,7 +2,7 @@
 
 Run manually on the local host only, never in CI. Double-gated: requires
 SUREPETCARE_LIVE_WRITE=1 in the real environment AND the configured tag
-to be Pinceau's 2119787; otherwise it aborts BEFORE any network call.
+to be Pinceau's 300003; otherwise it aborts BEFORE any network call.
 
 Flow (contracts §6 verification on every write):
     capture P0/V0 -> PUT the opposite profile -> verify ->
@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import common  # noqa: E402
 
-PINCEAU_TAG = 2119787
+PINCEAU_TAG = 300003
 
 
 async def main() -> None:

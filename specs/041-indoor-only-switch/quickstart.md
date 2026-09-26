@@ -81,7 +81,7 @@ tag `version` incremented. To convince yourself:
    contains one audit line like:
 
    ```
-   surepetcare: indoor-only verified | user=… | pet=Pinceau tag=2119787 | device=la chatière (1307328) | profile 2→3 | version 13→14
+   surepetcare: indoor-only verified | user=… | pet=Pinceau tag=300003 | device=la chatière (200001) | profile 2→3 | version 13→14
    ```
 
    (format indicative — the fields are contractual, the wording may differ slightly).

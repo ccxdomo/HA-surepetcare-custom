@@ -2,24 +2,24 @@
 
 - **Date**: 2026-09-26
 - **Sources**: live probes (research.md §1), surepy 0.9.0 source, interview ground truth.
-- All ids in examples are the household's real fixtures (household 267941).
+- All ids in examples are the household's real fixtures (household 100241).
 
 ## 1. Object graph
 
 ```
-Household (id 267941)
-├── Device  Hub            (product_id 1, id 1073725, tags: [])
-├── Device  Cat Flap       (product_id 6, id 1307328 "la chatière")
-│     ├── TagAssignment {tag 1492589, index 1, profile 2, version 3}
-│     ├── TagAssignment {tag 1492590, index 2, profile 2, version 9}
-│     └── TagAssignment {tag 2119787, index 3, profile 2, version 13}
-├── Device  Felaqua        (product_id 8, id 906099)
-│     ├── TagAssignment {tag 1492589, index 1, profile 2, version 1}
-│     ├── TagAssignment {tag 1492590, index 2, profile 2, version 1}
-│     └── TagAssignment {tag 2119787, index 3, profile 2, version 1}
-├── Pet  Moca     (id 584007, tag_id 1492589)
-├── Pet  Tibounet (id 584008, tag_id 1492590)
-└── Pet  Pinceau  (id 701753, tag_id 2119787)
+Household (id 100241)
+├── Device  Hub            (product_id 1, id 200002, tags: [])
+├── Device  Cat Flap       (product_id 6, id 200001 "la chatière")
+│     ├── TagAssignment {tag 300001, index 1, profile 2, version 3}
+│     ├── TagAssignment {tag 300002, index 2, profile 2, version 9}
+│     └── TagAssignment {tag 300003, index 3, profile 2, version 13}
+├── Device  Felaqua        (product_id 8, id 200003)
+│     ├── TagAssignment {tag 300001, index 1, profile 2, version 1}
+│     ├── TagAssignment {tag 300002, index 2, profile 2, version 1}
+│     └── TagAssignment {tag 300003, index 3, profile 2, version 1}
+├── Pet  Moca     (id 400001, tag_id 300001)
+├── Pet  Tibounet (id 400002, tag_id 300002)
+└── Pet  Pinceau  (id 400003, tag_id 300003)
 ```
 
 Key relation: **pet → tag** (`pets[].tag_id`, the physical microchip tag of the pet) and
@@ -41,12 +41,12 @@ discarded).
 
 - `data.devices[]` — device objects:
 
-| Field | Type | Notes / observed values (flap 1307328) |
+| Field | Type | Notes / observed values (flap 200001) |
 |---|---|---|
-| `id` | int | device id (fixture flap: 1307328) |
+| `id` | int | device id (fixture flap: 200001) |
 | `product_id` | int | 1 hub · 3 pet door connect · 4 feeder · 6 cat flap connect · 8 felaqua (surepy `EntityType`) |
 | `name` | str | e.g. `"la chatière "` (may carry a trailing space — entity naming must use `.strip()`/core's capitalize convention) |
-| `household_id` | int | 267941 |
+| `household_id` | int | 100241 |
 | `parent_device_id` | int | hub id for flaps |
 | `serial_number`, `mac_address`, `index`, `pairing_at`, `last_new_event_at`, `updated_at`, `version` | misc | registry/diagnostic |
 | `status` | obj | `online` (bool) · `battery` (float, total for 4 batteries — e.g. 5.825) · `locking.mode` (0 unlocked … 3 locked all) · `signal.device_rssi` · `learn_mode` · `version.device.{hardware, firmware}` |
@@ -57,7 +57,7 @@ discarded).
 
 | Field | Type | Notes |
 |---|---|---|
-| `id` | int | tag id (e.g. 2119787) |
+| `id` | int | tag id (e.g. 300003) |
 | `device_id` | int | parent device id (mirrors the enclosing device) |
 | `index` | int | slot index on the device (1–3 observed) |
 | `profile` | int | **the indoor-only setting**: 2 = normal access, 3 = indoor only (GIVEN, interview differential) |
@@ -66,12 +66,12 @@ discarded).
 
 - `data.pets[]` — pet objects:
 
-| Field | Type | Notes (Pinceau 701753) |
+| Field | Type | Notes (Pinceau 400003) |
 |---|---|---|
 | `id` | int | pet id |
 | `name` | str | `"Pinceau"` |
-| `household_id` | int | 267941 |
-| `tag_id` | int | **pet → tag link** (2119787) |
+| `household_id` | int | 100241 |
+| `tag_id` | int | **pet → tag link** (300003) |
 | `tag` | obj | tag object (below), `id == tag_id` |
 | `status.activity` | obj | `{pet_id, tag_id, device_id, where, since}` — last movement; `where`: 1 inside / 2 outside |
 | `status.drinking` | obj | `{tag_id, device_id, change[], at}` — Felaqua drinks |
@@ -129,14 +129,14 @@ Inputs: the coordinator's `dict[int, SurepyEntity]` (from `/me/start` via surepy
 
 | Entity | Id | Notes |
 |---|---|---|
-| Household | 267941 | single household |
-| Hub "Hub Chatière" | 1073725 | product 1, parent of the flap |
-| Cat flap "la chatière" | 1307328 | product 6 — **the only write target** |
-| Felaqua | 906099 | product 8 — ignored for indoor-only |
-| Pet Moca | 584007 | tag 1492589 |
-| Pet Tibounet | 584008 | tag 1492590 |
-| Pet Pinceau | 701753 | tag **2119787** — the only tag allowed in live write tests |
-| Tag assignments on flap | 1492589/1492590/2119787 | profile 2 at probe time, versions 3/9/13 |
+| Household | 100241 | single household |
+| Hub "Hub Chatière" | 200002 | product 1, parent of the flap |
+| Cat flap "la chatière" | 200001 | product 6 — **the only write target** |
+| Felaqua | 200003 | product 8 — ignored for indoor-only |
+| Pet Moca | 400001 | tag 300001 |
+| Pet Tibounet | 400002 | tag 300002 |
+| Pet Pinceau | 400003 | tag **300003** — the only tag allowed in live write tests |
+| Tag assignments on flap | 300001/300002/300003 | profile 2 at probe time, versions 3/9/13 |
 
 **Live-state note (probe time 2026-09-26 ≈ 09:30 CEST):** Pinceau's tag rests at
 **profile 2 (normal access), version 13** — the interview's expectation of a resting
@@ -148,7 +148,7 @@ still **end at verified profile 3** (contracts §10).
 | Concept | Value |
 |---|---|
 | Entity | `switch.<pet>_indoor_only` (e.g. `switch.pinceau_indoor_only`) |
-| `unique_id` | `{household_id}-{pet_id}-indoor_only` (e.g. `267941-701753-indoor_only`) |
+| `unique_id` | `{household_id}-{pet_id}-indoor_only` (e.g. `100241-400003-indoor_only`) |
 | Device | the pet's HA device, identifiers `("surepetcare", "{household_id}-{pet_id}")` — same device as the presence binary sensor |
 | State `on` | all assigned flaps at profile 3 → "indoor only" |
 | State `off` | at least one assigned flap at profile 2 → normal access |

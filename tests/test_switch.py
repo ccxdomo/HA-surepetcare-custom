@@ -36,30 +36,30 @@ def make_switch(pet_id: int, entity_map: dict, last_write: Any = None):
 
 async def test_t14_turn_on_refused():
     """Direct toggle raises the write-protected error — never writes."""
-    switch = make_switch(701753, {})
+    switch = make_switch(400003, {})
     with pytest.raises(HomeAssistantError) as excinfo:
         await switch.async_turn_on()
     assert excinfo.value.translation_key == "switch_write_protected"
 
 
 async def test_t14_turn_off_refused():
-    switch = make_switch(701753, {})
+    switch = make_switch(400003, {})
     with pytest.raises(HomeAssistantError) as excinfo:
         await switch.async_turn_off()
     assert excinfo.value.translation_key == "switch_write_protected"
 
 
 def test_t14_state_and_attributes_from_coordinator_fixture(entity_map):
-    switch = make_switch(701753, entity_map)
+    switch = make_switch(400003, entity_map)
     switch._update_attr(None)
     assert switch._attr_is_on is False  # fixture: Pinceau at profile 2
     attributes = switch._attr_extra_state_attributes
-    assert attributes["pet_id"] == 701753
+    assert attributes["pet_id"] == 400003
     assert attributes["pet_name"] == "Pinceau"
-    assert attributes["tag_id"] == 2119787
+    assert attributes["tag_id"] == 300003
     assert attributes["devices"] == [
         {
-            "device_id": 1307328,
+            "device_id": 200001,
             "device_name": "la chatière",
             "profile": 2,
             "version": 13,
@@ -72,10 +72,10 @@ def test_t14_state_and_attributes_from_coordinator_fixture(entity_map):
 
 
 def test_t14_indoor_only_state_and_icon(entity_map):
-    for tag in entity_map[1307328]["tags"]:
-        if tag["id"] == 2119787:
+    for tag in entity_map[200001]["tags"]:
+        if tag["id"] == 300003:
             tag["profile"] = 3
-    switch = make_switch(701753, entity_map)
+    switch = make_switch(400003, entity_map)
     switch._update_attr(None)
     assert switch._attr_is_on is True
     assert switch._attr_extra_state_attributes["all_flaps_indoor_only"] is True
@@ -84,23 +84,23 @@ def test_t14_indoor_only_state_and_icon(entity_map):
 
 def test_t14_mixed_multi_flap_is_off(entity_map):
     """Moca: profile 3 on one flap, profile 2 on the other → off."""
-    switch = make_switch(584007, entity_map)
+    switch = make_switch(400001, entity_map)
     switch._update_attr(None)
     assert switch._attr_is_on is False
     devices = switch._attr_extra_state_attributes["devices"]
-    assert sorted(d["device_id"] for d in devices) == [1307328, 1307329]
+    assert sorted(d["device_id"] for d in devices) == [200001, 1307329]
     assert switch.available is True
 
 
 def test_t14_offline_flap_unavailable(entity_map):
-    entity_map[1307328]["status"]["online"] = False
-    switch = make_switch(701753, entity_map)
+    entity_map[200001]["status"]["online"] = False
+    switch = make_switch(400003, entity_map)
     switch._update_attr(None)
     assert switch.available is False
 
 
 def test_t14_coordinator_failure_unavailable(entity_map):
-    switch = make_switch(701753, entity_map)
+    switch = make_switch(400003, entity_map)
     switch.coordinator.last_update_success = False
     switch._update_attr(None)
     assert switch.available is False
@@ -121,21 +121,21 @@ def test_t14_last_write_attribute(entity_map):
         "user_id": "user-041",
         "requested": True,
         "verified": [
-            {"device_id": 1307328, "tag_id": 2119787, "profile": 3, "version": 14}
+            {"device_id": 200001, "tag_id": 300003, "profile": 3, "version": 14}
         ],
     }
-    switch = make_switch(701753, entity_map, last_write=last_write)
+    switch = make_switch(400003, entity_map, last_write=last_write)
     switch._update_attr(None)
     assert switch._attr_extra_state_attributes["last_write"] == last_write
 
 
 def test_t14_assignment_lookup_matches_module_rules(entity_map):
     """The switch's state matches assignments.all_flaps_indoor_only."""
-    switch = make_switch(701753, entity_map)
+    switch = make_switch(400003, entity_map)
     switch._update_attr(None)
     found = next(
         a
         for a in assignments.build_pet_assignments(entity_map)
-        if a.pet_id == 701753
+        if a.pet_id == 400003
     )
     assert switch._attr_is_on == assignments.all_flaps_indoor_only(found)

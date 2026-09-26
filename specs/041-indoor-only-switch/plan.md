@@ -31,7 +31,7 @@ i18n/service-description files. As seeded, the component cannot even import.
    session; single-relogin rule.
 3. Unit tests T1–T4, T10–T12 (contracts §10) with embedded JSON fixtures derived from
    the real payload shapes (data-model.md §2; use the sanitized fixture values —
-   household 267941, flap 1307328, tags 1492589/1492590/2119787).
+   household 100241, flap 200001, tags 300001/300002/300003).
 4. **Gate G1**: all mandatory unit tests green on Python 3.13+ (parenthesized excepts
    keep the new modules importable there); no HA import needed for this phase.
 
@@ -55,7 +55,7 @@ i18n/service-description files. As seeded, the component cannot even import.
 
 1. `tests/live/` scripts (contracts §10 L1–L3). They read `.secrets/surepetcare.env`
    via environment only; L2 aborts unless `SUREPETCARE_LIVE_WRITE=1` and the tag equals
-   `SUREPETCARE_TAG_ID_PINCEAU` (2119787).
+   `SUREPETCARE_TAG_ID_PINCEAU` (300003).
 2. Run L1 (read-only). Record profile/version observed (expected now: profile 2,
    version 13 — research.md §1).
 3. Run L2 **once**: flip → verify (version +1) → back to 3 → verify. **The test must end
@@ -80,7 +80,7 @@ CORE files byte-identical to core pin; manifest versioned; unique_ids match core
 | Fetching CORE files from a drifted upstream | Byte-size check against research.md §8; diff against the seeded 7 files must be empty |
 | probatio API spelling differs from the schema intent | contracts §8.3: intent binding, spelling follows installed version; ask Architect if unclear |
 | `/me/start` lag vs verified patch | By design (contracts §6, research §7): display uses verified `/device` values; poll reconciles |
-| Live L2 fails mid-round-trip leaving wrong profile | L2 must always attempt the return-to-3 leg even if verification of the first leg failed mid-flight; abort-with-error before any PUT if tag ≠ 2119787 |
+| Live L2 fails mid-round-trip leaving wrong profile | L2 must always attempt the return-to-3 leg even if verification of the first leg failed mid-flight; abort-with-error before any PUT if tag ≠ 300003 |
 | Entity duplication scare after swap | unique_ids are core-identical (research §8); quickstart explains the two version checks |
 
 ## Out of scope (do not build)

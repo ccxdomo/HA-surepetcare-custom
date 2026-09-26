@@ -69,37 +69,37 @@ def device_payloads(tag_profile: int, tag_version: int) -> list[dict[str, Any]]:
     """A /device data list with the fixture flap and hub (data-model §4)."""
     return [
         {
-            "id": 1073725,
+            "id": 200002,
             "product_id": 1,
             "name": "Hub Chatière",
-            "household_id": 267941,
+            "household_id": 100241,
             "status": {"online": True},
             "tags": [],
         },
         {
-            "id": 1307328,
+            "id": 200001,
             "product_id": 6,
             "name": "la chatière ",
-            "household_id": 267941,
+            "household_id": 100241,
             "status": {"online": True},
             "tags": [
                 {
-                    "id": 1492589,
-                    "device_id": 1307328,
+                    "id": 300001,
+                    "device_id": 200001,
                     "index": 1,
                     "profile": 2,
                     "version": 3,
                 },
                 {
-                    "id": 1492590,
-                    "device_id": 1307328,
+                    "id": 300002,
+                    "device_id": 200001,
                     "index": 2,
                     "profile": 2,
                     "version": 9,
                 },
                 {
-                    "id": 2119787,
-                    "device_id": 1307328,
+                    "id": 300003,
+                    "device_id": 200001,
                     "index": 3,
                     "profile": tag_profile,
                     "version": tag_version,
@@ -107,15 +107,15 @@ def device_payloads(tag_profile: int, tag_version: int) -> list[dict[str, Any]]:
             ],
         },
         {
-            "id": 906099,
+            "id": 200003,
             "product_id": 8,
             "name": "Felaqua",
-            "household_id": 267941,
+            "household_id": 100241,
             "status": {"online": True},
             "tags": [
                 {
-                    "id": 2119787,
-                    "device_id": 906099,
+                    "id": 300003,
+                    "device_id": 200003,
                     "index": 3,
                     "profile": 2,
                     "version": 1,

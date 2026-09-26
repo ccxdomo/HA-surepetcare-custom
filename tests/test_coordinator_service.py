@@ -38,8 +38,8 @@ MOCA_ENTITY = "switch.moca_indoor_only"
 NOFLAP_ENTITY = "switch.noflap_indoor_only"
 
 VERIFIED_TAG = {
-    "id": 2119787,
-    "device_id": 1307328,
+    "id": 300003,
+    "device_id": 200001,
     "index": 3,
     "profile": 3,
     "version": 14,
@@ -93,9 +93,9 @@ def registry_entry(unique_id, platform="surepetcare", domain="switch"):
 
 def make_registry() -> dict:
     return {
-        PINCEAU_ENTITY: registry_entry("267941-701753-indoor_only"),
-        MOCA_ENTITY: registry_entry("267941-584007-indoor_only"),
-        NOFLAP_ENTITY: registry_entry("267941-999002-indoor_only"),
+        PINCEAU_ENTITY: registry_entry("100241-400003-indoor_only"),
+        MOCA_ENTITY: registry_entry("100241-400001-indoor_only"),
+        NOFLAP_ENTITY: registry_entry("100241-999002-indoor_only"),
     }
 
 
@@ -172,7 +172,7 @@ async def test_t13_unknown_entity_rejected(entity_map):
 async def test_t13_entity_of_other_platform_rejected(entity_map):
     entries = {
         PINCEAU_ENTITY: registry_entry(
-            "267941-701753-indoor_only", platform="other_integration"
+            "100241-400003-indoor_only", platform="other_integration"
         )
     }
     coordinator, _, _ = make_coordinator(entity_map, registry_entries=entries)
@@ -184,7 +184,7 @@ async def test_t13_entity_of_other_platform_rejected(entity_map):
 
 
 async def test_t13_entity_without_suffix_rejected(entity_map):
-    entries = {PINCEAU_ENTITY: registry_entry("267941-701753")}
+    entries = {PINCEAU_ENTITY: registry_entry("100241-400003")}
     coordinator, _, _ = make_coordinator(entity_map, registry_entries=entries)
     with pytest.raises(ServiceValidationError) as excinfo:
         await coordinator.handle_set_indoor_only(
@@ -206,7 +206,7 @@ async def test_t13_no_flap_assignment_rejected(entity_map):
 
 
 async def test_t13_offline_flap_refused_before_any_write(entity_map):
-    entity_map[1307328]["status"]["online"] = False
+    entity_map[200001]["status"]["online"] = False
     coordinator, refreshed, pushed = make_coordinator(
         entity_map, registry_entries=make_registry()
     )
@@ -244,14 +244,14 @@ async def test_happy_path_writes_verifies_patches_and_audits(entity_map, caplog)
     # Write used the cached profile version as the prior-version baseline.
     assert api.calls == [
         {
-            "device_id": 1307328,
-            "tag_id": 2119787,
+            "device_id": 200001,
+            "tag_id": 300003,
             "profile": 3,
             "expected_prior_version": 13,
         }
     ]
     # Cache patched in place with ONLY the verified values (V1/D4).
-    tag = entity_map[1307328]["tags"][2]
+    tag = entity_map[200001]["tags"][2]
     assert tag["profile"] == 3
     assert tag["version"] == 14
     assert tag["updated_at"] == "2026-09-26T10:00:00Z"
@@ -259,14 +259,14 @@ async def test_happy_path_writes_verifies_patches_and_audits(entity_map, caplog)
     assert pushed == [entity_map]
     assert refreshed == []
     # last_write audit recorded for the pet.
-    audit = coordinator.get_last_write(701753)
+    audit = coordinator.get_last_write(400003)
     assert audit["requested"] is True
     assert audit["user_id"] == "user-041"
     assert audit["at"]
     assert audit["verified"] == [
         {
-            "device_id": 1307328,
-            "tag_id": 2119787,
+            "device_id": 200001,
+            "tag_id": 300003,
             "profile": 3,
             "version": 14,
         }
@@ -274,8 +274,8 @@ async def test_happy_path_writes_verifies_patches_and_audits(entity_map, caplog)
     # One INFO audit line with the contractual fields (§9.2).
     assert "indoor-only write verified" in caplog.text
     assert "pet=Pinceau" in caplog.text
-    assert "tag_id=2119787" in caplog.text
-    assert "device=la chatière (1307328)" in caplog.text
+    assert "tag_id=300003" in caplog.text
+    assert "device=la chatière (200001)" in caplog.text
     assert "profile 2->3" in caplog.text
     assert "version 13->14" in caplog.text
     assert "user=user-041" in caplog.text
@@ -289,21 +289,21 @@ async def test_happy_path_indoor_only_false_writes_profile_2(entity_map):
     )
     await coordinator.handle_set_indoor_only(make_call(False, True, [PINCEAU_ENTITY]))
     assert api.calls[0]["profile"] == 2
-    assert entity_map[1307328]["tags"][2]["profile"] == 2
+    assert entity_map[200001]["tags"][2]["profile"] == 2
     assert pushed == [entity_map]
 
 
 async def test_happy_path_multi_pet_multi_flap_sequential(entity_map):
     verified_tag_pinceau = dict(VERIFIED_TAG)
     verified_moca_flap1 = {
-        "id": 1492589,
-        "device_id": 1307328,
+        "id": 300001,
+        "device_id": 200001,
         "index": 1,
         "profile": 3,
         "version": 4,
     }
     verified_moca_flap2 = {
-        "id": 1492589,
+        "id": 300001,
         "device_id": 1307329,
         "index": 1,
         "profile": 3,
@@ -320,13 +320,13 @@ async def test_happy_path_multi_pet_multi_flap_sequential(entity_map):
     )
     # Moca's two flaps written sequentially, then Pinceau's one.
     assert [(c["device_id"], c["tag_id"]) for c in api.calls] == [
-        (1307328, 1492589),
-        (1307329, 1492589),
-        (1307328, 2119787),
+        (200001, 300001),
+        (1307329, 300001),
+        (200001, 300003),
     ]
-    assert entity_map[1307328]["tags"][0]["version"] == 4
+    assert entity_map[200001]["tags"][0]["version"] == 4
     assert entity_map[1307329]["tags"][0]["version"] == 8
-    assert entity_map[1307328]["tags"][2]["version"] == 14
+    assert entity_map[200001]["tags"][2]["version"] == 14
     assert pushed == [entity_map]
 
 
@@ -336,7 +336,7 @@ async def test_happy_path_multi_pet_multi_flap_sequential(entity_map):
 async def test_t7_verification_failure_no_patch_refresh_scheduled(entity_map, caplog):
     api = FakeApi(
         error=SurepetcareVerificationError(
-            "Could not verify the indoor-only change for tag 2119787 on device 1307328"
+            "Could not verify the indoor-only change for tag 300003 on device 200001"
         )
     )
     coordinator, refreshed, pushed = make_coordinator(
@@ -350,14 +350,14 @@ async def test_t7_verification_failure_no_patch_refresh_scheduled(entity_map, ca
     assert excinfo.value.translation_key == "verification_failed"
     # No cache patch: the displayed state remains the last cloud state (V3).
     assert pushed == []
-    assert entity_map[1307328]["tags"][2]["profile"] == 2
-    assert entity_map[1307328]["tags"][2]["version"] == 13
+    assert entity_map[200001]["tags"][2]["profile"] == 2
+    assert entity_map[200001]["tags"][2]["version"] == 13
     # A refresh is scheduled so the UI reconciles with cloud truth (§6.4).
     assert refreshed == [True]
     # The failure is ERROR-audited with the same identifiers (§9.2).
     assert "indoor-only write FAILED" in caplog.text
     assert "pet=Pinceau" in caplog.text
-    assert "1307328" in caplog.text
+    assert "200001" in caplog.text
 
 
 async def test_no_secrets_in_audit_logs(entity_map, caplog):

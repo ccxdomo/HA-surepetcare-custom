@@ -48,7 +48,7 @@ devices and entities keep working, and the new switches appear next to them.
 | R5 | Every service call is **audit-logged**: who (user), when, what (pet, device(s), tag, profiles and versions before/after). | Interview |
 | R6 | **Read-after-write verification is mandatory**: after the PUT, the cloud state is read back and verified (profile matches AND tag `version` incremented) before any state change is shown. If verification fails, the switch keeps the last cloud-verified state. | Owner's hard condition |
 | R7 | Drop-in custom component: same domain (`surepetcare`), custom component overrides the core integration; existing entities are **not duplicated** (identical `unique_id`s to core). | Interview |
-| R8 | Live write tests use only Pinceau's tag (2119787) and **must end with a verified return to profile 3**. Credentials are never read from the repo, printed, logged or committed. | Interview (env contract) |
+| R8 | Live write tests use only Pinceau's tag (300003) and **must end with a verified return to profile 3**. Credentials are never read from the repo, printed, logged or committed. | Interview (env contract) |
 
 ## 4. Non-goals
 
@@ -82,7 +82,7 @@ devices and entities keep working, and the new switches appear next to them.
 7. If the API refuses the write, or verification cannot confirm it after the retry budget,
    the call raises, the log explains it, and the switch re-syncs from the next cloud read.
 8. A flap that is offline refuses writes (error, no API call issued).
-9. Live round-trip test on tag 2119787 ends with profile 3 verified (version incremented
+9. Live round-trip test on tag 300003 ends with profile 3 verified (version incremented
    from the starting value), and no credentials appear anywhere in logs, output or the
    repository.
 
@@ -125,4 +125,4 @@ devices and entities keep working, and the new switches appear next to them.
 | The API changes (token shape, headers) | Small, isolated client; all live facts pinned in research.md for fast re-probing. |
 | Concurrent writer (the app) changes profile mid-round-trip | Version delta check detects it (warn + strict profile match); next poll self-heals. |
 | Pet with tag on multiple flaps in mixed states | Defined semantics: `on` only if **all** flaps are profile 3; write targets all flaps carrying the tag. (Owner has one flap; rule is documented.) |
-| Live test leaves wrong resting state | Hard rule: test sequence ends at verified profile 3 on tag 2119787 (contracts §10). |
+| Live test leaves wrong resting state | Hard rule: test sequence ends at verified profile 3 on tag 300003 (contracts §10). |

@@ -2,18 +2,18 @@
   "data": {
     "devices": [
       {
-        "id": 1073725,
+        "id": 200002,
         "product_id": 1,
         "name": "Hub Chatière",
-        "household_id": 267941,
+        "household_id": 100241,
         "status": { "online": true },
         "tags": []
       },
       {
-        "id": 1307328,
+        "id": 200001,
         "product_id": 6,
         "name": "la chatière ",
-        "household_id": 267941,
+        "household_id": 100241,
         "status": { "online": true, "battery": 5.825 },
         "control": {
           "locking": { "mode": 0 },
@@ -23,8 +23,8 @@
         },
         "tags": [
           {
-            "id": 1492589,
-            "device_id": 1307328,
+            "id": 300001,
+            "device_id": 200001,
             "index": 1,
             "profile": 2,
             "version": 3,
@@ -32,8 +32,8 @@
             "updated_at": "2026-01-01T00:00:00Z"
           },
           {
-            "id": 1492590,
-            "device_id": 1307328,
+            "id": 300002,
+            "device_id": 200001,
             "index": 2,
             "profile": 2,
             "version": 9,
@@ -41,8 +41,8 @@
             "updated_at": "2026-01-01T00:00:00Z"
           },
           {
-            "id": 2119787,
-            "device_id": 1307328,
+            "id": 300003,
+            "device_id": 200001,
             "index": 3,
             "profile": 2,
             "version": 13,
@@ -52,26 +52,26 @@
         ]
       },
       {
-        "id": 906099,
+        "id": 200003,
         "product_id": 8,
         "name": "Felaqua",
-        "household_id": 267941,
+        "household_id": 100241,
         "status": { "online": true },
         "tags": [
-          { "id": 1492589, "device_id": 906099, "index": 1, "profile": 2, "version": 1 },
-          { "id": 1492590, "device_id": 906099, "index": 2, "profile": 2, "version": 1 },
-          { "id": 2119787, "device_id": 906099, "index": 3, "profile": 2, "version": 1 }
+          { "id": 300001, "device_id": 200003, "index": 1, "profile": 2, "version": 1 },
+          { "id": 300002, "device_id": 200003, "index": 2, "profile": 2, "version": 1 },
+          { "id": 300003, "device_id": 200003, "index": 3, "profile": 2, "version": 1 }
         ]
       },
       {
         "id": 1307329,
         "product_id": 3,
         "name": "Pet Door",
-        "household_id": 267941,
+        "household_id": 100241,
         "status": { "online": true },
         "tags": [
           {
-            "id": 1492589,
+            "id": 300001,
             "device_id": 1307329,
             "index": 1,
             "profile": 3,
@@ -84,36 +84,36 @@
     ],
     "pets": [
       {
-        "id": 584007,
+        "id": 400001,
         "name": "Moca ",
-        "household_id": 267941,
-        "tag_id": 1492589,
-        "tag": { "id": 1492589 }
+        "household_id": 100241,
+        "tag_id": 300001,
+        "tag": { "id": 300001 }
       },
       {
-        "id": 584008,
+        "id": 400002,
         "name": "Tibounet",
-        "household_id": 267941,
-        "tag_id": 1492590,
-        "tag": { "id": 1492590 }
+        "household_id": 100241,
+        "tag_id": 300002,
+        "tag": { "id": 300002 }
       },
       {
-        "id": 701753,
+        "id": 400003,
         "name": "Pinceau",
-        "household_id": 267941,
-        "tag_id": 2119787,
-        "tag": { "id": 2119787 }
+        "household_id": 100241,
+        "tag_id": 300003,
+        "tag": { "id": 300003 }
       },
       {
         "id": 999001,
         "name": "Ghost",
-        "household_id": 267941,
+        "household_id": 100241,
         "tag_id": null
       },
       {
         "id": 999002,
         "name": "NoFlap",
-        "household_id": 267941,
+        "household_id": 100241,
         "tag_id": 999999,
         "tag": { "id": 999999 }
       }

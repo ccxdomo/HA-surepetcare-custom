@@ -166,7 +166,7 @@ async def test_t4_get_devices_parses_data_list(api_module):
     client = make_client(api_module, session)
     devices = await client.get_devices()
     assert isinstance(devices, list)
-    assert [d["id"] for d in devices] == [1073725, 1307328, 906099]
+    assert [d["id"] for d in devices] == [200002, 200001, 200003]
     # Hub carries tags: [] (research §1) and is passed through untouched.
     assert devices[0]["tags"] == []
     # The login happened lazily before the GET (which carries the with[] query).
@@ -195,7 +195,7 @@ async def test_t5_set_tag_profile_happy_path(api_module):
     session.expect("POST", "/auth/login", LOGIN_OK(token))
     session.expect(
         "PUT",
-        "/device/1307328/tag/2119787",
+        "/device/200001/tag/300003",
         FakeResponse(200, {"data": {"profile": 3}}),
     )
     session.expect(
@@ -204,14 +204,14 @@ async def test_t5_set_tag_profile_happy_path(api_module):
     client = make_client(api_module, session)
 
     verified = await client.set_tag_profile(
-        1307328, 2119787, 3, expected_prior_version=13
+        200001, 300003, 3, expected_prior_version=13
     )
     assert verified["profile"] == 3
     assert verified["version"] == 14
 
     put = session.requests[1]
     assert put["method"] == "PUT"
-    assert put["url"].endswith("/device/1307328/tag/2119787")
+    assert put["url"].endswith("/device/200001/tag/300003")
     # Body is exactly the profile dict — nothing else (contracts §6 step 2).
     assert put["json"] == {"profile": 3}
     assert put["headers"]["Authorization"] == f"Bearer {token}"
@@ -226,7 +226,7 @@ async def test_t6_verify_retry_passes_on_second_attempt(api_module):
     token = make_token(492)
     session = FakeSession()
     session.expect("POST", "/auth/login", LOGIN_OK(token))
-    session.expect("PUT", "/device/1307328/tag/2119787", FakeResponse(200, {}))
+    session.expect("PUT", "/device/200001/tag/300003", FakeResponse(200, {}))
     session.expect(
         "GET", "/device", FakeResponse(200, {"data": device_payloads(2, 13)})
     )
@@ -236,7 +236,7 @@ async def test_t6_verify_retry_passes_on_second_attempt(api_module):
     client = make_client(api_module, session)
 
     verified = await client.set_tag_profile(
-        1307328, 2119787, 3, expected_prior_version=13
+        200001, 300003, 3, expected_prior_version=13
     )
     assert verified["profile"] == 3
     assert verified["version"] == 14
@@ -252,7 +252,7 @@ async def test_t7_verify_exhaustion_raises(api_module):
     token = make_token(492)
     session = FakeSession()
     session.expect("POST", "/auth/login", LOGIN_OK(token))
-    session.expect("PUT", "/device/1307328/tag/2119787", FakeResponse(200, {}))
+    session.expect("PUT", "/device/200001/tag/300003", FakeResponse(200, {}))
     for _ in range(api_module.VERIFY_ATTEMPTS):
         session.expect(
             "GET", "/device", FakeResponse(200, {"data": device_payloads(2, 13)})
@@ -261,11 +261,11 @@ async def test_t7_verify_exhaustion_raises(api_module):
 
     with pytest.raises(api_module.SurepetcareVerificationError) as excinfo:
         await client.set_tag_profile(
-            1307328, 2119787, 3, expected_prior_version=13
+            200001, 300003, 3, expected_prior_version=13
         )
     # The error names the device/tag and the last observed state.
-    assert "2119787" in str(excinfo.value)
-    assert "1307328" in str(excinfo.value)
+    assert "300003" in str(excinfo.value)
+    assert "200001" in str(excinfo.value)
     # 1 login + 1 PUT + N verification GETs — then stop, no extra traffic.
     assert len(session.requests) == 2 + api_module.VERIFY_ATTEMPTS
 
@@ -280,18 +280,18 @@ async def test_t8_put_401_relogin_once_and_retry(api_module):
     session.expect("POST", "/auth/login", LOGIN_OK(token1))
     session.expect(
         "PUT",
-        "/device/1307328/tag/2119787",
+        "/device/200001/tag/300003",
         FakeResponse(401, text="token expired"),
     )
     session.expect("POST", "/auth/login", LOGIN_OK(token2))
-    session.expect("PUT", "/device/1307328/tag/2119787", FakeResponse(200, {}))
+    session.expect("PUT", "/device/200001/tag/300003", FakeResponse(200, {}))
     session.expect(
         "GET", "/device", FakeResponse(200, {"data": device_payloads(3, 14)})
     )
     client = make_client(api_module, session)
 
     verified = await client.set_tag_profile(
-        1307328, 2119787, 3, expected_prior_version=13
+        200001, 300003, 3, expected_prior_version=13
     )
     assert verified["version"] == 14
     logins = [r for r in session.requests if r["url"].endswith("/auth/login")]
@@ -307,14 +307,14 @@ async def test_t8_relogin_failure_propagates_auth_error(api_module):
     session.expect("POST", "/auth/login", LOGIN_OK(make_token(492)))
     session.expect(
         "PUT",
-        "/device/1307328/tag/2119787",
+        "/device/200001/tag/300003",
         FakeResponse(401, text="token expired"),
     )
     session.expect("POST", "/auth/login", FakeResponse(401, text="bad credentials"))
     client = make_client(api_module, session)
     with pytest.raises(api_module.SurePetcareApiAuthError):
         await client.set_tag_profile(
-            1307328, 2119787, 3, expected_prior_version=13
+            200001, 300003, 3, expected_prior_version=13
         )
     # No retry PUT after the failed re-login.
     puts = [r for r in session.requests if r["method"] == "PUT"]
@@ -329,7 +329,7 @@ async def test_t9_verify_get_401_relogin_once_and_continue(api_module):
     token1, token2 = make_token(492), make_token(750)
     session = FakeSession()
     session.expect("POST", "/auth/login", LOGIN_OK(token1))
-    session.expect("PUT", "/device/1307328/tag/2119787", FakeResponse(200, {}))
+    session.expect("PUT", "/device/200001/tag/300003", FakeResponse(200, {}))
     session.expect("GET", "/device", FakeResponse(401, text="stale token"))
     session.expect("POST", "/auth/login", LOGIN_OK(token2))
     session.expect(
@@ -338,7 +338,7 @@ async def test_t9_verify_get_401_relogin_once_and_continue(api_module):
     client = make_client(api_module, session)
 
     verified = await client.set_tag_profile(
-        1307328, 2119787, 3, expected_prior_version=13
+        200001, 300003, 3, expected_prior_version=13
     )
     assert verified["profile"] == 3
     assert verified["version"] == 14
@@ -355,14 +355,14 @@ async def test_t10_put_non_2xx_raises_no_retry_no_verify(api_module, status):
     session.expect("POST", "/auth/login", LOGIN_OK(make_token(492)))
     session.expect(
         "PUT",
-        "/device/1307328/tag/2119787",
+        "/device/200001/tag/300003",
         FakeResponse(status, text=f"rejected {PASSWORD}"),
     )
     client = make_client(api_module, session)
 
     with pytest.raises(api_module.SurePetcareApiError) as excinfo:
         await client.set_tag_profile(
-            1307328, 2119787, 3, expected_prior_version=13
+            200001, 300003, 3, expected_prior_version=13
         )
     # The error names the HTTP status, never the password.
     assert str(status) in str(excinfo.value)
@@ -379,7 +379,7 @@ async def test_t10_concurrent_writer_version_jump_warns(api_module, caplog):
     token = make_token(492)
     session = FakeSession()
     session.expect("POST", "/auth/login", LOGIN_OK(token))
-    session.expect("PUT", "/device/1307328/tag/2119787", FakeResponse(200, {}))
+    session.expect("PUT", "/device/200001/tag/300003", FakeResponse(200, {}))
     session.expect(
         "GET", "/device", FakeResponse(200, {"data": device_payloads(3, 16)})
     )
@@ -387,7 +387,7 @@ async def test_t10_concurrent_writer_version_jump_warns(api_module, caplog):
 
     with caplog.at_level("DEBUG"):
         verified = await client.set_tag_profile(
-            1307328, 2119787, 3, expected_prior_version=13
+            200001, 300003, 3, expected_prior_version=13
         )
     assert verified["version"] == 16  # +3: pass, but warned
     assert "concurrent writer" in caplog.text
@@ -398,14 +398,14 @@ async def test_t10_missing_tag_in_verification_keeps_retrying(api_module):
     token = make_token(492)
     session = FakeSession()
     session.expect("POST", "/auth/login", LOGIN_OK(token))
-    session.expect("PUT", "/device/1307328/tag/2119787", FakeResponse(200, {}))
-    empty = [{"id": 1073725, "product_id": 1, "tags": []}]
+    session.expect("PUT", "/device/200001/tag/300003", FakeResponse(200, {}))
+    empty = [{"id": 200002, "product_id": 1, "tags": []}]
     for _ in range(api_module.VERIFY_ATTEMPTS):
         session.expect("GET", "/device", FakeResponse(200, {"data": empty}))
     client = make_client(api_module, session)
 
     with pytest.raises(api_module.SurepetcareVerificationError):
         await client.set_tag_profile(
-            1307328, 2119787, 3, expected_prior_version=13
+            200001, 300003, 3, expected_prior_version=13
         )
     assert len(session.requests) == 2 + api_module.VERIFY_ATTEMPTS
